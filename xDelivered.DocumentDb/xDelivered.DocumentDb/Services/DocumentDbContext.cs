@@ -12,7 +12,6 @@ using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Services
 {
-
     public class DocumentDbContext : IDbCache
     {
         private readonly string _dbName;

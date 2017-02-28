@@ -55,6 +55,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\CacheHelper.cs" />
+    <Compile Include="Services\CacheProvider.cs" />
+    <Compile Include="Interfaces\ICacheProvider.cs" />
     <Compile Include="Services\DocumentDbContext.cs" />
     <Compile Include="Interfaces\IDatabaseModelBase.cs" />
     <Compile Include="Interfaces\IDbCache.cs" />

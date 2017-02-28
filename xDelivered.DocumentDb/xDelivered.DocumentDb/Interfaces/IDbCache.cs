@@ -7,7 +7,7 @@ using Microsoft.Azure.Documents.Client;
 
 namespace xDelivered.DocumentDb.Interfaces
 {
-    interface IDbCache
+    public interface IDbCache
     {
         ConnectionMode GetConnectionPolicy();
         Task Init();
