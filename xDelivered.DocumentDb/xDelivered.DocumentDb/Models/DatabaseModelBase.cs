@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using xDelivered.Common;
-using xDelivered.Common.Common;
 using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Models

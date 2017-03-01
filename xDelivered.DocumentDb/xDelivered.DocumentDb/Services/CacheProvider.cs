@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StackExchange.Redis;
-using xDelivered.Common.Common;
+using xDelivered.Common;
 using xDelivered.DocumentDb.Helpers;
 using xDelivered.DocumentDb.Interfaces;
 using xDelivered.DocumentDb.Models;
@@ -74,7 +74,7 @@ namespace xDelivered.DocumentDb.Services
 
         public async Task<string> UpsertDocumentAndCache<T>(T value) where T : DatabaseModelBase
         {
-            Validate.CheckForNull(value);
+            Ensure.CheckForNull(value);
 
             Connect();
 
