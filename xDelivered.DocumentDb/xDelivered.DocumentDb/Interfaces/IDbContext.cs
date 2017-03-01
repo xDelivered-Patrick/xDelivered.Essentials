@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents.Client;
+using xDelivered.DocumentDb.Services;
 
 namespace xDelivered.DocumentDb.Interfaces
 {
-    public interface IDbCache
+    public interface IDbContext
     {
         ConnectionMode GetConnectionPolicy();
         Task Init();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Helpers
 {
@@ -23,6 +24,17 @@ namespace xDelivered.DocumentDb.Helpers
 
             builder.Append(objectKey);
 
+            return builder.ToString();
+        }
+
+        public static string CreateKey<T>(T applicationUser, Func<T, string> idLookup)
+        {
+            string keyPrefix = applicationUser.GetType().Name + ":";
+            string id = idLookup.Invoke(applicationUser);
+            
+            StringBuilder builder = new StringBuilder();
+            builder.Append(keyPrefix);
+            builder.Append(id);
             return builder.ToString();
         }
     }

@@ -25,5 +25,6 @@ namespace xDelivered.DocumentDb.Interfaces
         Task<long> GetListCount(string key);
         Task RemoveFromList(string key, string value);
         Task ClearList(string setId);
+        Task UpdateUser(IDatabaseModelBase applicationUser);
     }
 }

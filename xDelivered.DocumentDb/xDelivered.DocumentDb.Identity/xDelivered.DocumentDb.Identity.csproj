@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F2964850-8ED2-4048-A80E-F907A4D2F3AF}</ProjectGuid>
+    <ProjectGuid>{E02BEF57-AC80-4218-ABDA-96AB9B4E84DE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xDelivered.DocumentDb</RootNamespace>
-    <AssemblyName>xDelivered.DocumentDb</AssemblyName>
+    <RootNamespace>xDelivered.DocumentDb.Identity</RootNamespace>
+    <AssemblyName>xDelivered.DocumentDb.Identity</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\Build\debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,12 +26,16 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\Build\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Azure.Documents.Client, Version=1.12.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Azure.DocumentDB.1.12.0\lib\net45\Microsoft.Azure.Documents.Client.dll</HintPath>
       <Private>True</Private>
@@ -53,27 +57,25 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="xDelivered.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\xDelivered.Essentials.DocDb.1.0.2\lib\xDelivered.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xDelivered.DocumentDb, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\xDelivered.Essentials.DocDb.1.0.2\lib\xDelivered.DocumentDb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\CacheHelper.cs" />
-    <Compile Include="Services\CacheProvider.cs" />
-    <Compile Include="Interfaces\ICacheProvider.cs" />
-    <Compile Include="Services\DocumentDbContext.cs" />
-    <Compile Include="Interfaces\IDatabaseModelBase.cs" />
-    <Compile Include="Interfaces\IDbContext.cs" />
-    <Compile Include="Models\DatabaseModelBase.cs" />
+    <Compile Include="Models\ApplicationUser.cs" />
+    <Compile Include="Models\Extensions.cs" />
+    <Compile Include="Models\IdentityUser.cs" />
+    <Compile Include="Models\IdentityUserClaim.cs" />
+    <Compile Include="Models\UserStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.0.nupkg" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <ProjectReference Include="..\xDelivered.Common\xDelivered.Common.csproj">
-      <Project>{6A53C319-F465-4F79-B369-53435AB371AF}</Project>
-      <Name>xDelivered.Common</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Azure.DocumentDB.1.12.0\build\Microsoft.Azure.DocumentDB.targets" Condition="Exists('..\packages\Microsoft.Azure.DocumentDB.1.12.0\build\Microsoft.Azure.DocumentDB.targets')" />

@@ -12,7 +12,7 @@ using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Services
 {
-    public class DocumentDbContext : IDbCache
+    public class DocumentDbContext : IDbContext
     {
         private readonly string _dbName;
         private readonly DocumentClient _client;
@@ -36,6 +36,8 @@ namespace xDelivered.DocumentDb.Services
                 TypeNameHandling = TypeNameHandling.None
             };
         }
+
+        protected DocumentClient Client => _client;
 
         public ConnectionMode GetConnectionPolicy()
         {

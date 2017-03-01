@@ -14,11 +14,11 @@ namespace xDelivered.DocumentDb.Services
     public class CacheProvider : ICacheProvider
     {
         private readonly string _redisConnectionString;
-        private readonly IDbCache _docDb;
+        private readonly IDbContext _docDb;
         private IDatabase _db;
         private ConnectionMultiplexer _redis;
 
-        public CacheProvider(string redisConnectionString, IDbCache docDb)
+        public CacheProvider(string redisConnectionString, IDbContext docDb)
         {
             _redisConnectionString = redisConnectionString;
             _docDb = docDb;
@@ -107,7 +107,13 @@ namespace xDelivered.DocumentDb.Services
         {
             return _db.KeyDeleteAsync(setId);
         }
-        
+
+        public async Task UpdateUser(IDatabaseModelBase applicationUser)
+        {
+            await _docDb.UpsertDocument(applicationUser);
+            await SetObject(CacheHelper.CreateKey(applicationUser, x=>x.Id), applicationUser);
+        }
+
         public async Task AddToListAndTrim(string key, object item, int? limitByListCount = null)
         {
             Connect();
