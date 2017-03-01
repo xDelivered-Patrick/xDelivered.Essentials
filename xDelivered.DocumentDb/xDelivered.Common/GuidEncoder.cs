@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace xDelivered.Common.Common
+namespace xDelivered.Common
 {
     public static class GuidEncoder
     {
