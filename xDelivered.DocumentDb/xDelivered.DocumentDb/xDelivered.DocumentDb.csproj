@@ -69,12 +69,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <ProjectReference Include="..\xDelivered.Common\xDelivered.Common.csproj">
-      <Project>{6A53C319-F465-4F79-B369-53435AB371AF}</Project>
-      <Name>xDelivered.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Azure.DocumentDB.1.12.0\build\Microsoft.Azure.DocumentDB.targets" Condition="Exists('..\packages\Microsoft.Azure.DocumentDB.1.12.0\build\Microsoft.Azure.DocumentDB.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
