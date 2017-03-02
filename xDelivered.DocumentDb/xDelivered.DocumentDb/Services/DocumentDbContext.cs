@@ -17,12 +17,13 @@ namespace xDelivered.DocumentDb.Services
         private readonly string _dbName;
         private readonly DocumentClient _client;
 
-        private string Master = "main";
+        protected string Collection { get; set; } = "main";
+        protected Uri CollectionUri => UriFactory.CreateDocumentCollectionUri(_dbName, Collection);
 
         public DocumentDbContext(string docDbEndpoint, string docDbkey, string dbName, string collection = "main")
         {
             _dbName = dbName;
-            Master = collection;
+            Collection = collection;
             this._client = new DocumentClient(new Uri(docDbEndpoint), docDbkey,
                 connectionPolicy: new ConnectionPolicy
                 {
@@ -43,24 +44,29 @@ namespace xDelivered.DocumentDb.Services
         {
             return ConnectionMode.Direct;
         }
+        
+        protected IOrderedQueryable<T> NewQuery<T>() where T : IDatabaseModelBase
+        {
+            return _client.CreateDocumentQuery<T>(CollectionUri);
+        }
 
         public async Task Init()
         {
             await CheckCreateDatabase();
-            await CreateDocumentCollectionIfNotExists(Master);
+            await CreateDocumentCollectionIfNotExists(Collection);
         }
 
 
         public async Task<string> UpsertDocument<T>(T obj) where T : IDatabaseModelBase
         {
-            Document doc = await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_dbName, Master), obj, new RequestOptions() { });
+            Document doc = await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_dbName, Collection), obj, new RequestOptions() { });
             obj.Id = doc.Id;
             return doc.Id;
         }
 
         public async Task<string> UpsertObject(object obj)
         {
-            Document doc = await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_dbName, Master), obj);
+            Document doc = await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_dbName, Collection), obj);
             return doc.Id;
         }
 
@@ -109,7 +115,7 @@ namespace xDelivered.DocumentDb.Services
                     collectionInfo.IndexingPolicy.IncludedPaths.Add(
                         new IncludedPath
                         {
-                            Path = "/DocType/?",
+                            Path = $"/{nameof(IDatabaseModelBase.Type)}/?",
                             Indexes = new Collection<Index> {
                                 new RangeIndex(DataType.String)
                                 {
@@ -120,7 +126,7 @@ namespace xDelivered.DocumentDb.Services
 
                     collectionInfo.IndexingPolicy.IncludedPaths.Add(new IncludedPath()
                     {
-                        Path = "/\"Created\"/?",
+                        Path = $"/\"{nameof(IDatabaseModelBase.Created)}\"/?",
                         Indexes = new Collection<Index> {
                                 new RangeIndex(DataType.String)
                                 {
@@ -146,7 +152,7 @@ namespace xDelivered.DocumentDb.Services
             {
                 var t = typeof(T).Name;
 
-                return this._client.CreateDocumentQuery<T>(UriFactory.CreateDocumentCollectionUri(_dbName, Master))
+                return this._client.CreateDocumentQuery<T>(UriFactory.CreateDocumentCollectionUri(_dbName, Collection))
                     .Where(x => x.Type == t && x.Id == id)
                     .AsEnumerable()
                     .FirstOrDefault();
@@ -162,7 +168,7 @@ namespace xDelivered.DocumentDb.Services
         {
             var t = typeof(T).Name;
 
-            return Task.FromResult(this._client.CreateDocumentQuery<T>(UriFactory.CreateDocumentCollectionUri(_dbName, Master))
+            return Task.FromResult(this._client.CreateDocumentQuery<T>(UriFactory.CreateDocumentCollectionUri(_dbName, Collection))
                 .Where(x => x.Type == t && x.Id == id)
                 .AsEnumerable()
                 .FirstOrDefault());
@@ -170,29 +176,19 @@ namespace xDelivered.DocumentDb.Services
 
         public Task DeleteDocument<T>(T doc) where T : IDatabaseModelBase
         {
-            return _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_dbName, Master, doc.Id));
+            return _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_dbName, Collection, doc.Id));
         }
         
 
         public List<T> Search<T>(Func<T, bool> query) where T : IDatabaseModelBase
         {
             return this._client.CreateDocumentQuery<T>(
-                    UriFactory.CreateDocumentCollectionUri(_dbName, Master))
+                    UriFactory.CreateDocumentCollectionUri(_dbName, Collection))
                 .Where(x => x.Type == nameof(T))
                 .Where(query)
                 .ToList();
         }
         
-
-        public List<T> GetDocuments<T>(Func<T, bool> query) where T : IDatabaseModelBase
-        {
-            var result = this._client.CreateDocumentQuery<T>(
-                    UriFactory.CreateDocumentCollectionUri(_dbName, Master))
-                .Where(query);
-
-            return result.ToList();
-        }
-
         public async Task PurgeAll()
         {
             var db = _client.CreateDatabaseQuery().ToList().First();

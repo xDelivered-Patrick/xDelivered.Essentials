@@ -20,7 +20,6 @@ namespace xDelivered.DocumentDb.Interfaces
         Task<T> GetDocumentAsync<T>(string id) where T : IDatabaseModelBase;
         Task DeleteDocument<T>(T doc) where T : IDatabaseModelBase;
         List<T> Search<T>(Func<T, bool> query) where T : IDatabaseModelBase;
-        List<T> GetDocuments<T>(Func<T, bool> query) where T : IDatabaseModelBase;
         Task PurgeAll();
     }
 }

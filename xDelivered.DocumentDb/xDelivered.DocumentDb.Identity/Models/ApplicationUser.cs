@@ -13,7 +13,7 @@ namespace xDelivered.DocumentDb.Identity.Models
     {
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
-        public string Type { get; }
         public bool IsDeleted { get; set; }
+        public string Type => nameof(ApplicationUser);
     }
 }

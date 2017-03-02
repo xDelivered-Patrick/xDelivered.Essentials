@@ -232,7 +232,7 @@ namespace xDelivered.DocumentDb.Identity.Models
                 user.Id = Guid.NewGuid().ToString();
             }
             
-            await _cacheProvider.SetObject(CacheHelper.CreateKey<ApplicationUser>(user.Id), user);
+            await _cacheProvider.SetObject(CacheHelper.CreateKey(user, x=>x.Id), user);
             await _client.CreateDocumentAsync(_documentCollection, user);
         }
 

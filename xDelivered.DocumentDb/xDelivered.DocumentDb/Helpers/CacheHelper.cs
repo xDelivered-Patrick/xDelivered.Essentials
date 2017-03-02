@@ -24,7 +24,7 @@ namespace xDelivered.DocumentDb.Helpers
 
             builder.Append(objectKey);
 
-            return builder.ToString();
+            return builder.ToString().ToLower();
         }
 
         public static string CreateKey<T>(T applicationUser, Func<T, string> idLookup)
@@ -35,7 +35,7 @@ namespace xDelivered.DocumentDb.Helpers
             StringBuilder builder = new StringBuilder();
             builder.Append(keyPrefix);
             builder.Append(id);
-            return builder.ToString();
+            return builder.ToString().ToLower();
         }
     }
 }
