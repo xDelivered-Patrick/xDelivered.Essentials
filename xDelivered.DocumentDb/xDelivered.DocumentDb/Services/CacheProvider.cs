@@ -171,33 +171,10 @@ namespace xDelivered.DocumentDb.Services
                 return default(T);
             }
         }
-
-
-        public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> func, TimeSpan? expiry = null)
+        
+        public Task<T> GetObject<T>(string id)
         {
-            Connect();
-
-            //is the value in redis?
-            RedisValue existing = _db.StringGet(CacheHelper.CreateKey<T>(key));
-            if (existing.HasValue && !existing.IsNullOrEmpty)
-            {
-                //yes, return
-                return JsonConvert.DeserializeObject<T>(existing);
-            }
-            else
-            {
-                //no, create the value
-                T value = await func();
-
-                if (value != null)
-                {
-                    //store in redis
-                    await _db.StringSetAsync(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
-                }
-
-                //return
-                return value;
-            }
+            throw new NotImplementedException();
         }
 
         public T GetOrCreate<T>(string key, Func<T> func, TimeSpan? expiry = null)

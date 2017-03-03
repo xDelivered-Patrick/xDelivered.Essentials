@@ -11,7 +11,7 @@ namespace xDelivered.DocumentDb.Helpers
     {
         public static string CreateKey<T>(string objectKey)
         {
-            var keyPrefix = typeof(T).Name + ":";
+            var keyPrefix = typeof(T).Name.ToLower() + ":";
 
             if (objectKey.Contains(keyPrefix))
             {
@@ -24,6 +24,7 @@ namespace xDelivered.DocumentDb.Helpers
 
             builder.Append(objectKey);
 
+            System.Diagnostics.Debug.WriteLine(builder.ToString());
             return builder.ToString().ToLower();
         }
 
