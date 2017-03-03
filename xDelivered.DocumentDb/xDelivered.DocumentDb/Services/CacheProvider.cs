@@ -11,14 +11,14 @@ using xDelivered.DocumentDb.Models;
 
 namespace xDelivered.DocumentDb.Services
 {
-    public class CacheProvider : ICacheProvider
+    public class CacheProvider : XDbProvider, ICacheProvider
     {
         private readonly string _redisConnectionString;
         private readonly IDbContext _docDb;
         private IDatabase _db;
         private ConnectionMultiplexer _redis;
 
-        public CacheProvider(string redisConnectionString, IDbContext docDb)
+        public CacheProvider(string redisConnectionString, IDbContext docDb) : base(redisConnectionString, docDb)
         {
             _redisConnectionString = redisConnectionString;
             _docDb = docDb;
@@ -133,23 +133,7 @@ namespace xDelivered.DocumentDb.Services
             return _db.SortedSetAddAsync(key, JsonConvert.SerializeObject(item), score: DateTime.UtcNow.Ticks);
         }
 
-        public async Task<T> GetObject<T>(string id) where T : IDatabaseModelBase
-        {
-            T obj = await GetObjectOnlyCache<T>(id);
-            if (obj == null)
-            {
-                obj = _docDb.GetDocument<T>(id);
-            }
-
-            if (obj == null || obj.IsDeleted)
-            {
-                return default(T);
-            }
-
-            return obj;
-        }
-
-
+        
         public async Task<bool> Exists<T>(string key, Func<Task<T>> func = null)
         {
             Connect();
@@ -243,16 +227,7 @@ namespace xDelivered.DocumentDb.Services
             }
         }
 
-        public async Task DeleteObject<T>(T obj, bool updateMasterDatabase = true) where T : IDatabaseModelBase
-        {
-            _db.KeyDelete(CacheHelper.CreateKey<T>(obj.Id));
-
-            if (updateMasterDatabase)
-            {
-                await _docDb.DeleteDocument(obj);
-            }
-        }
-
+       
         public async Task<List<T>> GetSortedSetAsync<T>(string redisKey)
         {
             List<T> result = new List<T>();

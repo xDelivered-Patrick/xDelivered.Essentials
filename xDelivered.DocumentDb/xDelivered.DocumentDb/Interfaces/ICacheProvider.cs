@@ -13,7 +13,7 @@ namespace xDelivered.DocumentDb.Interfaces
         Task DeleteObject<T>(T obj, bool updateMasterDatabase = true) where T : IDatabaseModelBase;
         bool Disconnect();
         Task<bool> Exists<T>(string key, Func<Task<T>> func = null);
-        Task<T> GetObject<T>(string id) where T : IDatabaseModelBase;
+        Task<T> GetObject<T>(string id);
         Task<T> GetObjectOnlyCache<T>(string key);
         T GetOrCreate<T>(string key, Func<T> func, TimeSpan? expiry = default(TimeSpan?));
         Task<T> GetOrCreateAsync<T>(string objectId, Func<Task<T>> func, TimeSpan? expiry = default(TimeSpan?));

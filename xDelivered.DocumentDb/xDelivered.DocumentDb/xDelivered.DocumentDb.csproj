@@ -66,6 +66,8 @@
     <Compile Include="Interfaces\IDbContext.cs" />
     <Compile Include="Models\DatabaseModelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IXDbProvider.cs" />
+    <Compile Include="Services\xDbProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.0.nupkg" />

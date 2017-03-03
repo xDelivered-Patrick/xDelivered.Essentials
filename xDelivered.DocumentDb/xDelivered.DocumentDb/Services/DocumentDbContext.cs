@@ -44,12 +44,11 @@ namespace xDelivered.DocumentDb.Services
         {
             return ConnectionMode.Direct;
         }
-        
-        protected IOrderedQueryable<T> NewQuery<T>() where T : IDatabaseModelBase
+
+        public IOrderedQueryable<T> NewQuery<T>() where T : IDatabaseModelBase
         {
             return _client.CreateDocumentQuery<T>(CollectionUri);
         }
-
         public async Task Init()
         {
             await CheckCreateDatabase();
@@ -59,7 +58,7 @@ namespace xDelivered.DocumentDb.Services
 
         public async Task<string> UpsertDocument<T>(T obj) where T : IDatabaseModelBase
         {
-            Document doc = await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_dbName, Collection), obj, new RequestOptions() { });
+            Document doc = await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_dbName, Collection), obj);
             obj.Id = doc.Id;
             return doc.Id;
         }
@@ -146,16 +145,20 @@ namespace xDelivered.DocumentDb.Services
             }
         }
 
-        public T GetDocument<T>(string id) where T : IDatabaseModelBase
+        public T GetDocument<T>(string id)
         {
             try
             {
-                var t = typeof(T).Name;
-
-                return this._client.CreateDocumentQuery<T>(UriFactory.CreateDocumentCollectionUri(_dbName, Collection))
-                    .Where(x => x.Type == t && x.Id == id)
+                Document docJson = this._client.CreateDocumentQuery(UriFactory.CreateDocumentCollectionUri(_dbName, Collection))
+                    .Where(x => x.Id == id)
                     .AsEnumerable()
                     .FirstOrDefault();
+
+                if (docJson == null) return default(T);
+
+                var result = JsonConvert.DeserializeObject<T>(docJson.ToString());
+                return result;
+
             }
             catch (JsonSerializationException e)
             {
