@@ -31,9 +31,12 @@ namespace xDelivered.DocumentDb.Services
                     ConnectionProtocol = Protocol.Tcp
                 });
 
+
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
-                NullValueHandling = NullValueHandling.Ignore,
+                //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,    // will not serialize an object if it is a child object of itself
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,  // is useful if objects are nested but not indefinitely
+                                                                          //PreserveReferencesHandling = PreserveReferencesHandling.Objects, // serialize an object that is nested indefinitely
                 TypeNameHandling = TypeNameHandling.None
             };
         }

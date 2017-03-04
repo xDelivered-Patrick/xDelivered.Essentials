@@ -34,7 +34,7 @@ namespace xDelivered.DocumentDb.Services
                     //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,    // will not serialize an object if it is a child object of itself
                     ReferenceLoopHandling = ReferenceLoopHandling.Serialize,  // is useful if objects are nested but not indefinitely
                     //PreserveReferencesHandling = PreserveReferencesHandling.Objects, // serialize an object that is nested indefinitely
-                    TypeNameHandling = TypeNameHandling.All
+                    TypeNameHandling = TypeNameHandling.None
                 };
 
                 var configurationOptions = ConfigurationOptions.Parse(con);
@@ -193,7 +193,7 @@ namespace xDelivered.DocumentDb.Services
 
             if (json.HasValue)
             {
-                return JsonConvert.DeserializeObject<T>(json);
+                return JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.None});
             }
             return default(T);
         }
