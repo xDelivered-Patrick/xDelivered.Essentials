@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,18 +12,31 @@ namespace xDelivered.DocumentDb.Helpers
     {
         public static string CreateKey<T>(string objectKey)
         {
-            var keyPrefix = typeof(T).Name + ":";
+            var t = typeof(T);
+            if (t.DeclaringType != null)
+            {
+                t = t.DeclaringType;
+            }
 
-            if (objectKey.Contains(keyPrefix))
+            if (objectKey.ToLower().Contains(t.Name.ToLower()))
             {
                 //already has prefix
                 return objectKey;
             }
 
+            var keyPrefix = t.Name + ":".ToLower();
+            
             StringBuilder builder = new StringBuilder();
-            builder.Append(typeof(T).Name + ":");
+            builder.Append(keyPrefix);
 
             builder.Append(objectKey);
+            Debug.WriteLine(builder.ToString().ToLower());
+
+            var r = builder.ToString().ToLower();
+            if (r.Contains("mazfjqmeoe-qmjxys7mhrg"))
+            {
+                Debug.WriteLine("huh");
+            }
 
             return builder.ToString().ToLower();
         }

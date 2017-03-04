@@ -72,27 +72,6 @@ namespace xDelivered.DocumentDb.Services
             return SetObject(model.Id, model, expiry, updateMasterDb);
         }
 
-        public async Task<string> UpsertDocumentAndCache<T>(T value) where T : DatabaseModelBase
-        {
-            Ensure.CheckForNull(value);
-
-            Connect();
-
-            //store into doc db
-            string documentDbId = await _docDb.UpsertDocument(value);
-
-            //set Id of object, so redis will also have it
-            value.Id = documentDbId;
-
-            //create key for redis
-            var redisKey = CacheHelper.CreateKey<T>(documentDbId);
-
-            //use key to store into redis
-            await _db.StringSetAsync(redisKey, JsonConvert.SerializeObject(value));
-
-            return documentDbId;
-        }
-
         public Task<long> GetListCount(string key)
         {
             return _db.SortedSetLengthAsync(key);

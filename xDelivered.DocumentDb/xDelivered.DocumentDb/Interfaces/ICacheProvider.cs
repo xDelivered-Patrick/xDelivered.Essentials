@@ -21,7 +21,7 @@ namespace xDelivered.DocumentDb.Interfaces
         Task<List<T>> GetSortedSetAsync<T>(string redisKey);
         Task SetObject<T>(T model, TimeSpan expiry, bool updateMasterDb = true) where T : IDatabaseModelBase;
         Task SetObject<T>(string key, T value, TimeSpan? expiry = default(TimeSpan?), bool updateUnderlying = false);
-        Task<string> UpsertDocumentAndCache<T>(T value) where T : DatabaseModelBase;
+        Task<string> UpsertDocumentAndCache<T>(T value) where T : IDatabaseModelBase;
         Task<long> GetListCount(string key);
         Task RemoveFromList(string key, string value);
         Task ClearList(string setId);
