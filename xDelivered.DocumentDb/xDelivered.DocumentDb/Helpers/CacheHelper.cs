@@ -12,19 +12,13 @@ namespace xDelivered.DocumentDb.Helpers
     {
         public static string CreateKey<T>(string objectKey)
         {
-            var t = typeof(T);
-            if (t.DeclaringType != null)
-            {
-                t = t.DeclaringType;
-            }
+            var keyPrefix = typeof(T).Name.ToLower() + ":";
 
-            if (objectKey.ToLower().Contains(t.Name.ToLower()))
+            if (objectKey.ToLower().Contains(typeof(T).Name.ToLower()))
             {
                 //already has prefix
                 return objectKey;
             }
-
-            var keyPrefix = t.Name + ":".ToLower();
             
             StringBuilder builder = new StringBuilder();
             builder.Append(keyPrefix);
@@ -38,6 +32,7 @@ namespace xDelivered.DocumentDb.Helpers
                 Debug.WriteLine("huh");
             }
 
+            System.Diagnostics.Debug.WriteLine(builder.ToString());
             return builder.ToString().ToLower();
         }
 
