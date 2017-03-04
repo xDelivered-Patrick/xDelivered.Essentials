@@ -63,10 +63,81 @@ namespace xDelivered.DocumentDb.Services
             return documentDbId;
         }
         
-        public async Task<T> GetObject<T>(string id)
+        /// <summary>
+        /// Will attempt to pull from Redis. If no match will call the Func (where to pull the value from) and will store in redis and return. 
+        /// 
+        /// Note : primarily used for DocDbRedisCacheResolver
+        /// </summary>
+        /// <typeparam name="T">Type of document to return</typeparam>
+        /// <param name="key">expected key of the document</param>
+        /// <param name="func">where to get the value from if no match</param>
+        /// <param name="expiry">when the cache value should expire in redis</param>
+        /// <returns>The document</returns>
+        public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> func, TimeSpan? expiry = null)
+        {
+            //is the value in redis?
+            RedisValue existing = _db.StringGet(CacheHelper.CreateKey<T>(key));
+            if (existing.HasValue && !existing.IsNullOrEmpty)
+            {
+                //yes, return
+                return JsonConvert.DeserializeObject<T>(existing);
+            }
+            else
+            {
+                //no, create the value
+                T value = await func();
+
+                if (value != null)
+                {
+                    //store in redis
+                    await _db.StringSetAsync(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
+                }
+
+                //return
+                return value;
+            }
+        }
+
+
+        /// <summary>
+        /// Will attempt to pull from Redis. If no match will call the Func (where to pull the value from) and will store in redis and return. 
+        /// 
+        /// Note : primarily used for DocDbRedisCacheResolver
+        /// </summary>
+        /// <typeparam name="T">Type of document to return</typeparam>
+        /// <param name="key">expected key of the document</param>
+        /// <param name="func">where to get the value from if no match</param>
+        /// <param name="expiry">when the cache value should expire in redis</param>
+        /// <returns>The document</returns>
+        public T GetOrCreate<T>(string key, Func<T> func, TimeSpan? expiry = null)
+        {
+            //is the value in redis?
+            RedisValue existing = _db.StringGet(CacheHelper.CreateKey<T>(key));
+            if (existing.HasValue && !existing.IsNullOrEmpty)
+            {
+                //yes, return
+                return JsonConvert.DeserializeObject<T>(existing);
+            }
+            else
+            {
+                //no, create the value
+                T value = func();
+
+                if (value != null)
+                {
+                    //store in redis
+                    _db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
+                }
+
+                //return
+                return value;
+            }
+        }
+
+        public async Task<T> GetObjectAsync<T>(string id)
         {
             //first try cache
-            T obj = await GetObjectOnlyCache<T>(id);
+            T obj = await GetObjectOnlyCacheAsync<T>(id);
             
             if (obj == null)
             {
@@ -87,6 +158,25 @@ namespace xDelivered.DocumentDb.Services
             return _db.KeyExistsAsync(key);
         }
 
+        public T GetObject<T>(string id)
+        {
+            //first try cache
+            T obj = GetObjectOnlyCache<T>(id);
+
+            if (obj == null)
+            {
+                //now try docdb
+                obj = DocumentDB.GetDocument<T>(id);
+            }
+
+            if (obj == null)
+            {
+                return default(T);
+            }
+
+            return obj;
+        }
+
         public async Task DeleteObject<T>(T obj, bool updateMasterDatabase = true) where T : IDatabaseModelBase
         {
             _db.KeyDelete(CacheHelper.CreateKey<T>(obj.Id));
@@ -97,9 +187,21 @@ namespace xDelivered.DocumentDb.Services
             }
         }
 
-        private async Task<T> GetObjectOnlyCache<T>(string key)
+        private async Task<T> GetObjectOnlyCacheAsync<T>(string key)
         {
             RedisValue json = await _db.StringGetAsync(CacheHelper.CreateKey<T>(key));
+
+            if (json.HasValue)
+            {
+                return JsonConvert.DeserializeObject<T>(json);
+            }
+            return default(T);
+        }
+
+
+        public T GetObjectOnlyCache<T>(string key)
+        {
+            RedisValue json = _db.StringGet(CacheHelper.CreateKey<T>(key));
 
             if (json.HasValue)
             {

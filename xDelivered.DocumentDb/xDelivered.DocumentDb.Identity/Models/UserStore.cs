@@ -29,6 +29,8 @@ namespace xDelivered.DocumentDb.Identity.Models
         private readonly DocumentClient _client;
         private static DocumentClient _cachedClient;
 
+        private Dictionary<string, TUser> _userMemoryCache = new Dictionary<string, TUser>();
+
         public UserStore(Uri endPoint, string authKey, string database, string collection, ICacheProvider cacheProvider, bool ensureDatabaseAndCollection = false) : this(GetOrCreateClient(endPoint, authKey), database, collection, ensureDatabaseAndCollection)
         {
             _cacheProvider = cacheProvider;
@@ -261,10 +263,18 @@ namespace xDelivered.DocumentDb.Identity.Models
                 throw new ArgumentNullException("userId");
             }
 
-            return await _cacheProvider.GetOrCreateAsync<ApplicationUser>(CacheHelper.CreateKey<ApplicationUser>(userId), async () =>
+            if (_userMemoryCache.ContainsKey(userId))
+            {
+                return _userMemoryCache[userId];
+            }
+
+            //todo : allow to turn and off memory cache
+            var result =  await _cacheProvider.GetOrCreateAsync<ApplicationUser>(CacheHelper.CreateKey<ApplicationUser>(userId), async () =>
             {
                 return (await GetUsers(user => user.Id == userId)).FirstOrDefault() as ApplicationUser;
             }) as TUser;
+            _userMemoryCache[userId] = result;
+            return result;
         }
 
         public async Task<TUser> FindByNameAsync(string userName)
@@ -276,10 +286,19 @@ namespace xDelivered.DocumentDb.Identity.Models
                 throw new ArgumentNullException("userName");
             }
 
-            return await _cacheProvider.GetOrCreateAsync<ApplicationUser>(CacheHelper.CreateKey<ApplicationUser>(userName), async () =>
+            if (_userMemoryCache.ContainsKey(userName))
+            {
+                return _userMemoryCache[userName];
+            }
+
+            TUser result = await _cacheProvider.GetOrCreateAsync<ApplicationUser>(CacheHelper.CreateKey<ApplicationUser>(userName), async () =>
             {
                 return (await GetUsers(user => user.UserName == userName)).FirstOrDefault() as ApplicationUser;
             }) as TUser;
+
+            _userMemoryCache[userName] = result;
+
+            return result;
         }
 
         public async Task UpdateAsync(TUser user)
