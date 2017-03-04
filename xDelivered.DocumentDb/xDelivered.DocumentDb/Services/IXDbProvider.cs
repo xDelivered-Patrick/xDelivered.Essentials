@@ -23,7 +23,7 @@ namespace xDelivered.DocumentDb.Services
         /// <param name="create">where to get the value from if no match</param>
         /// <param name="expiry">when the cache value should expire in redis</param>
         /// <returns>The document</returns>
-        T GetOrCreate<T>(string objectId, Func<T> create, TimeSpan? expiry = null);
+        T GetOrCreate<T>(string objectId, Func<T> create, TimeSpan? expiry = null); 
 
         /// <summary>
         /// Will attempt to pull from Redis. If no match will call the Func (where to pull the value from) and will store in redis and return. 
