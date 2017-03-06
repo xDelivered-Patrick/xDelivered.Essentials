@@ -13,19 +13,23 @@ using xDelivered.DocumentDb.Models;
 
 namespace xDelivered.DocumentDb.Services
 {
-    public class XDbProvider : IXDbProvider
+    public class XDbProvider : IXDbProvider, IDisposable
     {
         protected IDbContext DocumentDB { get; }
-        private IDatabase _db;
+        protected IDatabase _db;
+        private string _conn;
+        private ConnectionMultiplexer _redis;
 
         public XDbProvider(string redisConnectionString, IDbContext docDb)
         {
+            _conn = redisConnectionString;
+
             DocumentDB = docDb;
 
             Connect(redisConnectionString);
         }
 
-        private void Connect(string con)
+        protected void Connect(string con)
         {
             if (_db == null)
             {
@@ -39,7 +43,7 @@ namespace xDelivered.DocumentDb.Services
 
                 var configurationOptions = ConfigurationOptions.Parse(con);
                 configurationOptions.SyncTimeout = 30000;
-                var _redis = ConnectionMultiplexer.Connect(configurationOptions);
+                _redis = ConnectionMultiplexer.Connect(configurationOptions);
                 _db = _redis.GetDatabase();
             }
         }
@@ -208,6 +212,25 @@ namespace xDelivered.DocumentDb.Services
                 return JsonConvert.DeserializeObject<T>(json);
             }
             return default(T);
+        }
+
+        public void SetObjectOnlyCache<T>(T obj, TimeSpan? expiry = null)
+        {
+            var key = Guid.NewGuid().ShortGuid();
+            _db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(obj), expiry: expiry);
+            RedisValue json = _db.StringGet(CacheHelper.CreateKey<T>(key));
+            
+            if (obj is IDatabaseModelBase)
+            {
+                var dbModel = obj as IDatabaseModelBase;
+                dbModel.Id = key;
+            }
+        }
+
+        public void Dispose()
+        {
+            _db.Multiplexer.Dispose();
+            _redis.GetServer(_redis.GetEndPoints().First()).ClientKill();
         }
     }
 }

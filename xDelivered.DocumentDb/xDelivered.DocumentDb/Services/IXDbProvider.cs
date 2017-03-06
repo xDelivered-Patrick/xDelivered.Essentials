@@ -38,5 +38,6 @@ namespace xDelivered.DocumentDb.Services
         Task<T> GetOrCreateAsync<T>(string objectId, Func<Task<T>> create, TimeSpan? expiry = null);
 
         T GetObjectOnlyCache<T>(string key);
+        void SetObjectOnlyCache<T>(T obj, TimeSpan? expiry = null);
     }
 }

@@ -9,7 +9,6 @@ namespace xDelivered.DocumentDb.Interfaces
     {
         Task AddToList<T>(string key, T item);
         Task AddToListAndTrim(string key, object item, int? limitByListCount = default(int?));
-        void Connect();
         Task DeleteObject<T>(T obj, bool updateMasterDatabase = true) where T : IDatabaseModelBase;
         bool Disconnect();
         Task<bool> Exists<T>(string key, Func<Task<T>> func = null);

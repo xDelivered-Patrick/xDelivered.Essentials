@@ -13,48 +13,19 @@ namespace xDelivered.DocumentDb.Services
 {
     public class CacheProvider : XDbProvider, ICacheProvider
     {
-        private readonly string _redisConnectionString;
-        private readonly IDbContext _docDb;
-        private IDatabase _db;
-        private ConnectionMultiplexer _redis;
 
         public CacheProvider(string redisConnectionString, IDbContext docDb) : base(redisConnectionString, docDb)
         {
-            _redisConnectionString = redisConnectionString;
-            _docDb = docDb;
 
-            Connect();
-        }
-
-        public void Connect()
-        {
-            if (_db == null)
-            {
-                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-                {
-                    //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,    // will not serialize an object if it is a child object of itself
-                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,  // is useful if objects are nested but not indefinitely
-                    //PreserveReferencesHandling = PreserveReferencesHandling.Objects, // serialize an object that is nested indefinitely
-                    TypeNameHandling = TypeNameHandling.All
-                };
-
-                var configurationOptions = ConfigurationOptions.Parse(_redisConnectionString);
-                configurationOptions.SyncTimeout = 30000;
-                _redis = ConnectionMultiplexer.Connect(configurationOptions);
-                _db = _redis.GetDatabase();
-            }
         }
 
         public bool Disconnect()
         {
-            _db = null;
             return true;
         }
 
         public async Task SetObject<T>(string key, T value, TimeSpan? expiry = null, bool updateUnderlying = false)
         {
-            Connect();
-
             await _db.StringSetAsync(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
 
             if (updateUnderlying)
@@ -62,7 +33,7 @@ namespace xDelivered.DocumentDb.Services
                 var docDbRecord = value as DatabaseModelBase;
                 if (docDbRecord != null)
                 {
-                    await _docDb.UpsertDocument(docDbRecord);
+                    await base.DocumentDB.UpsertDocument(docDbRecord);
                 }
             }
         }
@@ -89,14 +60,12 @@ namespace xDelivered.DocumentDb.Services
 
         public async Task UpdateUser(IDatabaseModelBase applicationUser)
         {
-            await _docDb.UpsertDocument(applicationUser);
+            await DocumentDB.UpsertDocument(applicationUser);
             await SetObject(CacheHelper.CreateKey(applicationUser, x=>x.Id), applicationUser);
         }
 
         public async Task AddToListAndTrim(string key, object item, int? limitByListCount = null)
         {
-            Connect();
-
             await _db.SortedSetAddAsync(key, JsonConvert.SerializeObject(item), score: DateTime.UtcNow.Ticks);
 
             if (limitByListCount.HasValue)
@@ -107,16 +76,12 @@ namespace xDelivered.DocumentDb.Services
 
         public Task AddToList<T>(string key, T item)
         {
-            Connect();
-
             return _db.SortedSetAddAsync(key, JsonConvert.SerializeObject(item), score: DateTime.UtcNow.Ticks);
         }
 
         
         public async Task<bool> Exists<T>(string key, Func<Task<T>> func = null)
         {
-            Connect();
-
             if (func != null)
             {
                 var cacheValue = await GetOrCreateAsync(key, func);
@@ -130,12 +95,10 @@ namespace xDelivered.DocumentDb.Services
 
         }
 
-        public async Task<T> GetObjectOnlyCache<T>(string key)
+        public new async Task<T> GetObjectOnlyCache<T>(string key)
         {
             try
             {
-                Connect();
-
                 RedisValue json = await _db.StringGetAsync(CacheHelper.CreateKey<T>(key));
 
                 if (json.HasValue)
@@ -151,38 +114,11 @@ namespace xDelivered.DocumentDb.Services
             }
         }
         
-        public Task<T> GetObject<T>(string id)
+        public new Task<T> GetObject<T>(string id)
         {
             throw new NotImplementedException();
         }
-
-        public T GetOrCreate<T>(string key, Func<T> func, TimeSpan? expiry = null)
-        {
-            Connect();
-
-            //is the value in redis?
-            RedisValue existing = _db.StringGet(CacheHelper.CreateKey<T>(key));
-            if (existing.HasValue && !existing.IsNullOrEmpty)
-            {
-                //yes, return
-                return JsonConvert.DeserializeObject<T>(existing);
-            }
-            else
-            {
-                //no, create the value
-                T value = func();
-
-                if (value != null)
-                {
-                    //store in redis
-                    _db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
-                }
-
-                //return
-                return value;
-            }
-        }
-
+        
        
         public async Task<List<T>> GetSortedSetAsync<T>(string redisKey)
         {

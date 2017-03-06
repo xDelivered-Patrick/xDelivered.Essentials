@@ -20,7 +20,6 @@ namespace xDelivered.DocumentDb.Identity.Models
         where TUser : IdentityUser
     {
         private readonly ICacheProvider _cacheProvider;
-        private bool _disposed;
 
         private readonly string _database;
         private readonly string _collection;
@@ -741,10 +740,7 @@ namespace xDelivered.DocumentDb.Identity.Models
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
+
         }
 
         private async Task UpdateUserAsync(TUser user)
@@ -763,7 +759,6 @@ namespace xDelivered.DocumentDb.Identity.Models
 
         public void Dispose()
         {
-            _disposed = true;
         }
 
         public IQueryable<TUser> Users => _client.CreateDocumentQuery<TUser>(_documentCollection);
