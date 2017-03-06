@@ -5,7 +5,7 @@ using xDelivered.DocumentDb.Models;
 
 namespace xDelivered.DocumentDb.Services
 {
-    public interface IXDbProvider
+    public interface IXDbProvider : IDisposable
     {
         Task DeleteObject<T>(T obj, bool updateMasterDatabase = true) where T : IDatabaseModelBase;
         Task<bool> Exists<T>(string key);

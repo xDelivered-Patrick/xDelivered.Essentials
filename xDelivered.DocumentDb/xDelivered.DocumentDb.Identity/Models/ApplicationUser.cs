@@ -18,20 +18,13 @@ namespace xDelivered.DocumentDb.Identity.Models
         public bool IsDeleted { get; set; }
         public string Type => nameof(ApplicationUser);
 
-        public virtual async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> userManager)
+        public virtual async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> userManager, string authType = DefaultAuthenticationTypes.ApplicationCookie)
         {
-            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
-            ClaimsIdentity userIdentity = await userManager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-
-            this.AddClaims(userIdentity);
+            ClaimsIdentity userIdentity = await userManager.CreateIdentityAsync(this, authType);
 
             // Add custom user claims here
-            return userIdentity;
-        }
 
-        protected virtual ClaimsIdentity AddClaims(ClaimsIdentity identity)
-        {
-            return identity;
+            return userIdentity;
         }
     }
 }

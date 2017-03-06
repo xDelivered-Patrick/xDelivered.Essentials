@@ -12,9 +12,9 @@ namespace xDelivered.DocumentDb.Helpers
     {
         public static string CreateKey<T>(string objectKey)
         {
-            var keyPrefix = typeof(T).Name.ToLower() + ":";
+            var keyPrefix = $"{typeof(T).Name.ToLower()}:";
 
-            if (objectKey.ToLower().Contains(typeof(T).Name.ToLower()))
+            if (objectKey.ToLower().Contains($"{typeof(T).Name.ToLower()}:"))
             {
                 //already has prefix
                 return objectKey;
@@ -26,21 +26,21 @@ namespace xDelivered.DocumentDb.Helpers
             builder.Append(objectKey);
             Debug.WriteLine(builder.ToString().ToLower());
 
-            var r = builder.ToString().ToLower();
-            if (r.Contains("mazfjqmeoe-qmjxys7mhrg"))
-            {
-                Debug.WriteLine("huh");
-            }
-
-            System.Diagnostics.Debug.WriteLine(builder.ToString());
+            Debug.WriteLine(builder.ToString());
             return builder.ToString().ToLower();
         }
 
         public static string CreateKey<T>(T applicationUser, Func<T, string> idLookup)
         {
-            string keyPrefix = applicationUser.GetType().Name + ":";
+            string keyPrefix = $"{applicationUser.GetType().Name}:";
             string id = idLookup.Invoke(applicationUser);
             
+            if (id.ToLower().Contains($"{typeof(T).Name.ToLower()}:"))
+            {
+                //already has prefix
+                return id.ToLower();
+            }
+
             StringBuilder builder = new StringBuilder();
             builder.Append(keyPrefix);
             builder.Append(id);

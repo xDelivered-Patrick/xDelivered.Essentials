@@ -16,14 +16,11 @@ namespace xDelivered.DocumentDb.Services
     public class XDbProvider : IXDbProvider, IDisposable
     {
         protected IDbContext DocumentDB { get; }
-        protected IDatabase _db;
-        private string _conn;
-        private ConnectionMultiplexer _redis;
+        protected static IDatabase _db;
+        private static ConnectionMultiplexer _redis;
 
         public XDbProvider(string redisConnectionString, IDbContext docDb)
         {
-            _conn = redisConnectionString;
-
             DocumentDB = docDb;
 
             Connect(redisConnectionString);
@@ -43,6 +40,7 @@ namespace xDelivered.DocumentDb.Services
 
                 var configurationOptions = ConfigurationOptions.Parse(con);
                 configurationOptions.SyncTimeout = 30000;
+                configurationOptions.AbortOnConnectFail = false;
                 _redis = ConnectionMultiplexer.Connect(configurationOptions);
                 _db = _redis.GetDatabase();
             }
@@ -229,8 +227,24 @@ namespace xDelivered.DocumentDb.Services
 
         public void Dispose()
         {
-            _db.Multiplexer.Dispose();
-            _redis.GetServer(_redis.GetEndPoints().First()).ClientKill();
+            //try
+            //{
+            //    var endpoint = _redis.GetEndPoints().First();
+            //    var server = _redis.GetServer(endpoint);
+            //    server.ClientKill(server.EndPoint);
+            //}
+            //catch (ArgumentException e)
+            //{
+            //    if (e.Message.Contains("The specified endpoint is not defined"))
+            //    {
+            //        Debug.WriteLine(e);
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+                
+            //}
         }
     }
 }

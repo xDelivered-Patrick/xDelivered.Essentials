@@ -7,10 +7,16 @@ namespace xDelivered.DocumentDb.Identity.Models
 {
     public class IdentityUser : IUser
     {
-        [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
+        private string _userName;
 
-        public string UserName { get; set; }
+        [JsonProperty(PropertyName = "id")]
+        public virtual string Id { get; set; }
+
+        public string UserName
+        {
+            get { return _userName.ToLower(); }
+            set { _userName = value; }
+        }
 
         /// <summary>
         ///     Email
