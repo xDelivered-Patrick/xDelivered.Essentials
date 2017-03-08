@@ -262,17 +262,22 @@ namespace xDelivered.DocumentDb.Identity.Models
                 throw new ArgumentNullException("userId");
             }
 
-            if (_userMemoryCache.ContainsKey(userId))
+            if (_userMemoryCache.ContainsKey(userId) && _userMemoryCache[userId] != null)
             {
                 return _userMemoryCache[userId];
             }
 
             //todo : allow to turn and off memory cache
-            var result =  await _cacheProvider.GetOrCreateAsync<ApplicationUser>(CacheHelper.CreateKey<ApplicationUser>(userId), async () =>
+            var result =  await _cacheProvider.GetOrCreateAsync<TUser>(CacheHelper.CreateKey<TUser>(userId), async () =>
             {
-                return (await GetUsers(user => user.Id == userId)).FirstOrDefault() as ApplicationUser;
+                return (await GetUsers(user => user.Id == userId)).FirstOrDefault();
             }) as TUser;
-            _userMemoryCache[userId] = result;
+
+            if (result != null)
+            {
+                _userMemoryCache[userId] = result;
+            }
+            
             return result;
         }
 
@@ -285,17 +290,20 @@ namespace xDelivered.DocumentDb.Identity.Models
                 throw new ArgumentNullException("userName");
             }
 
-            if (_userMemoryCache.ContainsKey(userName))
+            if (_userMemoryCache.ContainsKey(userName) && _userMemoryCache[userName] != null)
             {
                 return _userMemoryCache[userName];
             }
 
-            TUser result = await _cacheProvider.GetOrCreateAsync<ApplicationUser>(CacheHelper.CreateKey<ApplicationUser>(userName), async () =>
+            TUser result = await _cacheProvider.GetOrCreateAsync<TUser>(CacheHelper.CreateKey<TUser>(userName), async () =>
             {
-                return (await GetUsers(user => user.UserName == userName)).FirstOrDefault() as ApplicationUser;
-            }) as TUser;
+                return (await GetUsers(user => user.UserName == userName)).FirstOrDefault();
+            });
 
-            _userMemoryCache[userName] = result;
+            if (result != null)
+            {
+                _userMemoryCache[userName] = result;
+            }
 
             return result;
         }
