@@ -510,7 +510,7 @@ namespace xDelivered.DocumentDb.Identity.Models
                 throw new ArgumentNullException("email");
             }
             
-            return await _cacheProvider.GetOrCreateAsync<TUser>(CacheHelper.CreateKey<ApplicationUser>(email), async () =>
+            return await _cacheProvider.GetOrCreateAsync<TUser>(CacheHelper.CreateKey<TUser>(email), async () =>
             {
                 return (await GetUsers(user => user.Email == email)).FirstOrDefault();
             });
@@ -754,7 +754,7 @@ namespace xDelivered.DocumentDb.Identity.Models
         private async Task UpdateUserAsync(TUser user)
         {
             await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_database, _collection), user);
-            await _cacheProvider.SetObject(CacheHelper.CreateKey<ApplicationUser>(user.Id), user);
+            await _cacheProvider.SetObject(CacheHelper.CreateKey<TUser>(user.Id), user);
 
             var redisKeyEmail = CacheHelper.CreateKey<TUser>(user.Email);
             await _cacheProvider.SetObject(redisKeyEmail, user);

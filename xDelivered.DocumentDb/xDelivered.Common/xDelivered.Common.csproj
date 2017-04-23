@@ -63,6 +63,7 @@
     <Compile Include="IOExtensions.cs" />
     <Compile Include="IStartupTask.cs" />
     <Compile Include="ListExtensions.cs" />
+    <Compile Include="ManualResetEventSlim.cs" />
     <Compile Include="MimeMapping.cs" />
     <Compile Include="PagedList.cs" />
     <Compile Include="PathUtils.cs" />

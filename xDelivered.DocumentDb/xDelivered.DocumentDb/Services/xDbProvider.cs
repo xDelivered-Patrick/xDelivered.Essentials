@@ -227,24 +227,7 @@ namespace xDelivered.DocumentDb.Services
 
         public void Dispose()
         {
-            //try
-            //{
-            //    var endpoint = _redis.GetEndPoints().First();
-            //    var server = _redis.GetServer(endpoint);
-            //    server.ClientKill(server.EndPoint);
-            //}
-            //catch (ArgumentException e)
-            //{
-            //    if (e.Message.Contains("The specified endpoint is not defined"))
-            //    {
-            //        Debug.WriteLine(e);
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-                
-            //}
+            _redis.Dispose();
         }
     }
 }
