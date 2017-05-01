@@ -215,8 +215,17 @@ namespace xDelivered.DocumentDb.Services
         public void SetObjectOnlyCache<T>(T obj, TimeSpan? expiry = null)
         {
             var key = Guid.NewGuid().ShortGuid();
+
+            if (obj is IDatabaseModelBase)
+            {
+                var dbm = (obj as IDatabaseModelBase);
+                if (dbm.Id.IsNotNullOrEmpty())
+                {
+                    key = dbm.Id;
+                }
+            }
+
             _db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(obj), expiry: expiry);
-            RedisValue json = _db.StringGet(CacheHelper.CreateKey<T>(key));
             
             if (obj is IDatabaseModelBase)
             {
