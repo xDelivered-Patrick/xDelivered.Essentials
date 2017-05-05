@@ -43,6 +43,8 @@ namespace xDelivered.DocumentDb.Services
 
         protected DocumentClient Client => _client;
 
+        DocumentClient IDbContext.Client => Client;
+
         public ConnectionMode GetConnectionPolicy()
         {
             return ConnectionMode.Direct;

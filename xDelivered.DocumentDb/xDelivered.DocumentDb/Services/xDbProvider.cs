@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Azure.Documents.Client;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using xDelivered.Common;
@@ -18,6 +19,9 @@ namespace xDelivered.DocumentDb.Services
         protected IDbContext DocumentDB { get; }
         protected static IDatabase _db;
         private static ConnectionMultiplexer _redis;
+
+        public DocumentClient DocDbClient => DocumentDB.Client;
+        public IDatabase RedisClient => _db;
 
         public XDbProvider(string redisConnectionString, IDbContext docDb)
         {

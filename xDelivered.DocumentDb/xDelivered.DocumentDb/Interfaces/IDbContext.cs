@@ -10,6 +10,7 @@ namespace xDelivered.DocumentDb.Interfaces
 {
     public interface IDbContext
     {
+        DocumentClient Client { get; }
         ConnectionMode GetConnectionPolicy();
         Task Init();
         Task<string> UpsertDocument<T>(T obj) where T : IDatabaseModelBase;

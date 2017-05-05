@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.Documents.Client;
+using StackExchange.Redis;
 using xDelivered.DocumentDb.Interfaces;
 using xDelivered.DocumentDb.Models;
 
@@ -39,5 +41,7 @@ namespace xDelivered.DocumentDb.Services
 
         T GetObjectOnlyCache<T>(string key);
         void SetObjectOnlyCache<T>(T obj, TimeSpan? expiry = null);
+        IDatabase RedisClient { get; }
+        DocumentClient DocDbClient { get; }
     }
 }
