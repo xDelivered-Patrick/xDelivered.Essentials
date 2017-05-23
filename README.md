@@ -77,8 +77,6 @@ Now resolve foreign relationship in single line via object resolver. Leverages M
 //now pull tournament from user object via memory/redis/cosmosDb (order of query)
 Tournament tourney = user.CompletedTournaments.First().Resolve();
 ```
-###Automatically prefix document types
-![Redis](https://s22.postimg.org/6j58qnae9/redis.png)
 
 **Override key creation to achieve object upsert persistance instead of using short GUID**
 ```csharp
