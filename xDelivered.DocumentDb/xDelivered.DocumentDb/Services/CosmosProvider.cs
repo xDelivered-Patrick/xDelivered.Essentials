@@ -12,7 +12,7 @@ using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Services
 {
-    public class DocumentDbContext : IDbContext
+    public class CosmosProvider : ICosmosDb
     {
         private readonly string _dbName;
         private readonly DocumentClient _client;
@@ -20,7 +20,7 @@ namespace xDelivered.DocumentDb.Services
         protected string Collection { get; set; } = "main";
         protected Uri CollectionUri => UriFactory.CreateDocumentCollectionUri(_dbName, Collection);
 
-        public DocumentDbContext(string docDbEndpoint, string docDbkey, string dbName, string collection = "main")
+        public CosmosProvider(string docDbEndpoint, string docDbkey, string dbName, string collection = "main")
         {
             _dbName = dbName;
             Collection = collection;
@@ -34,7 +34,6 @@ namespace xDelivered.DocumentDb.Services
 
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
-                //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,    // will not serialize an object if it is a child object of itself
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,  // is useful if objects are nested but not indefinitely
                                                                           //PreserveReferencesHandling = PreserveReferencesHandling.Objects, // serialize an object that is nested indefinitely
                 TypeNameHandling = TypeNameHandling.None
@@ -43,7 +42,7 @@ namespace xDelivered.DocumentDb.Services
 
         protected DocumentClient Client => _client;
 
-        DocumentClient IDbContext.Client => Client;
+        DocumentClient ICosmosDb.Client => Client;
 
         public ConnectionMode GetConnectionPolicy()
         {

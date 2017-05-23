@@ -10,6 +10,12 @@ namespace xDelivered.DocumentDb.Helpers
 {
     public static class CacheHelper
     {
+        /// <summary>
+        /// Creates a key based from a documents name. Will prefix the documents type to the ID
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectKey"></param>
+        /// <returns></returns>
         public static string CreateKey<T>(string objectKey)
         {
             var keyPrefix = $"{typeof(T).Name.ToLower()}:";
@@ -22,18 +28,19 @@ namespace xDelivered.DocumentDb.Helpers
             
             StringBuilder builder = new StringBuilder();
             builder.Append(keyPrefix);
-
             builder.Append(objectKey);
-            Debug.WriteLine(builder.ToString().ToLower());
-
-            Debug.WriteLine(builder.ToString());
             return builder.ToString().ToLower();
         }
 
-        public static string CreateKey<T>(T applicationUser, Func<T, string> idLookup)
+        /// <summary>
+        /// Creates a key based from a documents name. Will prefix the documents type to the ID
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string CreateKey<T>(T @object, Func<T, string> idLookup)
         {
-            string keyPrefix = $"{applicationUser.GetType().Name}:";
-            string id = idLookup.Invoke(applicationUser);
+            string keyPrefix = $"{@object.GetType().Name}:";
+            string id = idLookup.Invoke(@object);
             
             if (id.ToLower().Contains($"{typeof(T).Name.ToLower()}:"))
             {

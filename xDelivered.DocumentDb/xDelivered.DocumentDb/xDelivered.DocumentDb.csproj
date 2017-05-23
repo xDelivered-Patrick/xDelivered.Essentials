@@ -58,27 +58,20 @@
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Interfaces\IObjectResolver.cs" />
     <Compile Include="Models\ObjectLink.cs" />
-    <Compile Include="Services\CacheProvider.cs" />
-    <Compile Include="Interfaces\ICacheProvider.cs" />
     <Compile Include="Services\DocDbRedisResolver.cs" />
-    <Compile Include="Services\DocumentDbContext.cs" />
+    <Compile Include="Services\CosmosProvider.cs" />
     <Compile Include="Interfaces\IDatabaseModelBase.cs" />
-    <Compile Include="Interfaces\IDbContext.cs" />
+    <Compile Include="Interfaces\ICosmosDb.cs" />
     <Compile Include="Models\DatabaseModelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IXDbProvider.cs" />
-    <Compile Include="Services\xDbProvider.cs" />
+    <Compile Include="Services\XDbProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.0.nupkg" />
     <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.1.nupkg" />
-    <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.12.nupkg" />
     <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.2.nupkg" />
-    <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.4.nupkg" />
-    <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.5.nupkg" />
-    <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.6.nupkg" />
-    <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.7.nupkg" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

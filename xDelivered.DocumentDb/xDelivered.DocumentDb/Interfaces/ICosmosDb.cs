@@ -8,7 +8,7 @@ using xDelivered.DocumentDb.Services;
 
 namespace xDelivered.DocumentDb.Interfaces
 {
-    public interface IDbContext
+    public interface ICosmosDb
     {
         DocumentClient Client { get; }
         ConnectionMode GetConnectionPolicy();

@@ -1,13 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xDelivered.DocumentDb", "xDelivered.DocumentDb\xDelivered.DocumentDb.csproj", "{F2964850-8ED2-4048-A80E-F907A4D2F3AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xDelivered.DocumentDb.Identity", "xDelivered.DocumentDb.Identity\xDelivered.DocumentDb.Identity.csproj", "{E02BEF57-AC80-4218-ABDA-96AB9B4E84DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xDelivered.Common", "xDelivered.Common\xDelivered.Common.csproj", "{6A53C319-F465-4F79-B369-53435AB371AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Implementation", "Implementation", "{F36B279B-DEC9-4DA6-B89D-5479961132AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample Solution", "Sample Solution", "{33A7FC70-1EE3-43E5-9761-548E3814FC20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xDelivered.Sampleapp", "xDelivered.Sampleapp\xDelivered.Sampleapp.csproj", "{724AE762-3B04-4522-AFB9-E7C7E1A7AED6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,8 +33,18 @@ Global
 		{6A53C319-F465-4F79-B369-53435AB371AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A53C319-F465-4F79-B369-53435AB371AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A53C319-F465-4F79-B369-53435AB371AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{724AE762-3B04-4522-AFB9-E7C7E1A7AED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{724AE762-3B04-4522-AFB9-E7C7E1A7AED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{724AE762-3B04-4522-AFB9-E7C7E1A7AED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{724AE762-3B04-4522-AFB9-E7C7E1A7AED6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F2964850-8ED2-4048-A80E-F907A4D2F3AF} = {F36B279B-DEC9-4DA6-B89D-5479961132AD}
+		{E02BEF57-AC80-4218-ABDA-96AB9B4E84DE} = {F36B279B-DEC9-4DA6-B89D-5479961132AD}
+		{6A53C319-F465-4F79-B369-53435AB371AF} = {F36B279B-DEC9-4DA6-B89D-5479961132AD}
+		{724AE762-3B04-4522-AFB9-E7C7E1A7AED6} = {33A7FC70-1EE3-43E5-9761-548E3814FC20}
 	EndGlobalSection
 EndGlobal

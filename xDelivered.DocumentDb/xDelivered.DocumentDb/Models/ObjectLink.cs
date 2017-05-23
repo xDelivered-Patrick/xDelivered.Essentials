@@ -1,8 +1,15 @@
 ﻿using Newtonsoft.Json;
 using xDelivered.DocumentDb.Interfaces;
+using xDelivered.DocumentDb.Services;
 
 namespace xDelivered.DocumentDb.Models
 {
+    /// <summary>
+    /// Comprises a loose relationship between two Documents allowing relationships to be constructed in a NoSQL manner.
+    /// 
+    /// Will hold value in memory. If no object then pulls from either Redis or CosmosDb
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ObjectLink<T> where T : IDatabaseModelBase
     {
         public ObjectLink() { }
@@ -34,13 +41,19 @@ namespace xDelivered.DocumentDb.Models
         [JsonIgnore]
         public bool HasLink => !string.IsNullOrEmpty(Link);
 
-        public T Resolve(IObjectResolver resolver)
+        /// <summary>
+        /// Pulls object from link. Order of attempts : 1. Memory 2. Redis 3. CosmosDb 
+        /// </summary>
+        /// <returns>Document</returns>
+        public T Resolve(IObjectResolver resolver = null)
         {
             if (Value != null) return Value;
 
             if (Link == null) return default(T);
 
-            var v = resolver.Resolve<T>(Link);
+            var rResolver = resolver ?? XDbProvider.Resolver;
+
+            var v = rResolver.Resolve<T>(Link);
 
             Value = v;
 

@@ -5,6 +5,9 @@ using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Models
 {
+    /// <summary>
+    /// Base of all documents
+    /// </summary>
     public abstract class DatabaseModelBase : IDatabaseModelBase
     {
         [JsonProperty("id")]

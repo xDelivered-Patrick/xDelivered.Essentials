@@ -16,46 +16,68 @@ namespace xDelivered.DocumentDb.Services
 {
     public class XDbProvider : IXDbProvider, IDisposable
     {
-        protected IDbContext DocumentDB { get; }
-        protected static IDatabase _db;
+        protected ICosmosDb DocumentCosmosDb { get; }
+        protected static IDatabase Db;
         private static ConnectionMultiplexer _redis;
 
-        public DocumentClient DocDbClient => DocumentDB.Client;
-        public IDatabase RedisClient => _db;
+        /// <summary>
+        /// Underlying DocumentCosmosDb instance
+        /// </summary>
+        public DocumentClient DocDbClient => DocumentCosmosDb.Client;
 
-        public XDbProvider(string redisConnectionString, IDbContext docDb)
+        /// <summary>
+        /// Underlying Redis instance
+        /// </summary>
+        public IDatabase RedisClient => Db;
+
+        /// <summary>
+        /// Cached Resolver for easy access
+        /// </summary>
+        public static IObjectResolver Resolver { get; set; }
+
+        public XDbProvider(string redisConnectionString, ICosmosDb cosmosCosmosDb)
         {
-            DocumentDB = docDb;
+            DocumentCosmosDb = cosmosCosmosDb;
 
             Connect(redisConnectionString);
+            Resolver = new DocDbRedisResolver(this);
+        }
+
+        /// <summary>
+        /// Makes sure collections are created. Only do this once per solution to ensure performance.
+        /// </summary>
+        /// <returns></returns>
+        public Task Init()
+        {
+            return this.DocumentCosmosDb.Init();
         }
 
         protected void Connect(string con)
         {
-            if (_db == null)
+            if (Db != null) return;
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
-                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-                {
-                    //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,    // will not serialize an object if it is a child object of itself
-                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,  // is useful if objects are nested but not indefinitely
-                    //PreserveReferencesHandling = PreserveReferencesHandling.Objects, // serialize an object that is nested indefinitely
-                    TypeNameHandling = TypeNameHandling.None
-                };
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,  // is useful if objects are nested but not indefinitely
+                TypeNameHandling = TypeNameHandling.None
+            };
 
-                var configurationOptions = ConfigurationOptions.Parse(con);
-                configurationOptions.SyncTimeout = 30000;
-                configurationOptions.AbortOnConnectFail = false;
-                _redis = ConnectionMultiplexer.Connect(configurationOptions);
-                _db = _redis.GetDatabase();
-            }
+            var configurationOptions = ConfigurationOptions.Parse(con);
+            configurationOptions.SyncTimeout = 30000;
+            configurationOptions.AbortOnConnectFail = false;
+            _redis = ConnectionMultiplexer.Connect(configurationOptions);
+            Db = _redis.GetDatabase();
         }
-        
+
+        /// <summary>
+        /// Will place an object into both Redis and CosmosDb
+        /// </summary>
+        /// <returns>ID of document</returns>
         public async Task<string> UpsertDocumentAndCache<T>(T value) where T : IDatabaseModelBase
         {
             Ensure.CheckForNull(value);
-            
+
             //store into doc db
-            string documentDbId = await DocumentDB.UpsertObject(value);
+            string documentDbId = await DocumentCosmosDb.UpsertObject(value);
 
             //set Id of object, so redis will also have it
             value.Id = documentDbId;
@@ -64,11 +86,11 @@ namespace xDelivered.DocumentDb.Services
             var redisKey = CacheHelper.CreateKey<T>(documentDbId);
 
             //use key to store into redis
-            await _db.StringSetAsync(redisKey, JsonConvert.SerializeObject(value));
+            await Db.StringSetAsync(redisKey, JsonConvert.SerializeObject(value));
 
             return documentDbId;
         }
-        
+
         /// <summary>
         /// Will attempt to pull from Redis. If no match will call the Func (where to pull the value from) and will store in redis and return. 
         /// 
@@ -82,7 +104,7 @@ namespace xDelivered.DocumentDb.Services
         public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> func, TimeSpan? expiry = null)
         {
             //is the value in redis?
-            RedisValue existing = _db.StringGet(CacheHelper.CreateKey<T>(key));
+            RedisValue existing = Db.StringGet(CacheHelper.CreateKey<T>(key));
             if (existing.HasValue && !existing.IsNullOrEmpty)
             {
                 //yes, return
@@ -96,7 +118,7 @@ namespace xDelivered.DocumentDb.Services
                 if (value != null)
                 {
                     //store in redis
-                    await _db.StringSetAsync(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
+                    await Db.StringSetAsync(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
                 }
 
                 //return
@@ -118,7 +140,7 @@ namespace xDelivered.DocumentDb.Services
         public T GetOrCreate<T>(string key, Func<T> func, TimeSpan? expiry = null)
         {
             //is the value in redis?
-            RedisValue existing = _db.StringGet(CacheHelper.CreateKey<T>(key));
+            RedisValue existing = Db.StringGet(CacheHelper.CreateKey<T>(key));
             if (existing.HasValue && !existing.IsNullOrEmpty)
             {
                 //yes, return
@@ -132,7 +154,7 @@ namespace xDelivered.DocumentDb.Services
                 if (value != null)
                 {
                     //store in redis
-                    _db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
+                    Db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(value), expiry: expiry);
                 }
 
                 //return
@@ -140,15 +162,21 @@ namespace xDelivered.DocumentDb.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves an object from Redis first, then DocumentCosmosDb afterwards
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<T> GetObjectAsync<T>(string id)
         {
             //first try cache
             T obj = await GetObjectOnlyCacheAsync<T>(id);
-            
+
             if (obj == null)
             {
                 //now try docdb
-                obj = DocumentDB.GetDocument<T>(id);
+                obj = DocumentCosmosDb.GetDocument<T>(id);
             }
 
             if (obj == null)
@@ -158,12 +186,24 @@ namespace xDelivered.DocumentDb.Services
 
             return obj;
         }
-        
+
+        /// <summary>
+        /// Does exist in Redis?
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public Task<bool> Exists<T>(string key)
         {
-            return _db.KeyExistsAsync(key);
+            return Db.KeyExistsAsync(key);
         }
 
+        /// <summary>
+        /// Retrieves an object from Redis first, then DocumentCosmosDb afterwards
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public T GetObject<T>(string id)
         {
             //first try cache
@@ -172,7 +212,7 @@ namespace xDelivered.DocumentDb.Services
             if (obj == null)
             {
                 //now try docdb
-                obj = DocumentDB.GetDocument<T>(id);
+                obj = DocumentCosmosDb.GetDocument<T>(id);
             }
 
             if (obj == null)
@@ -183,31 +223,43 @@ namespace xDelivered.DocumentDb.Services
             return obj;
         }
 
+        /// <summary>
+        /// Delete from cache, optionally delete from Db
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="updateMasterDatabase"></param>
+        /// <returns></returns>
         public async Task DeleteObject<T>(T obj, bool updateMasterDatabase = true) where T : IDatabaseModelBase
         {
-            _db.KeyDelete(CacheHelper.CreateKey<T>(obj.Id));
+            Db.KeyDelete(CacheHelper.CreateKey<T>(obj.Id));
 
             if (updateMasterDatabase)
             {
-                await DocumentDB.DeleteDocument(obj);
+                await DocumentCosmosDb.DeleteDocument(obj);
             }
         }
 
         private async Task<T> GetObjectOnlyCacheAsync<T>(string key)
         {
-            RedisValue json = await _db.StringGetAsync(CacheHelper.CreateKey<T>(key));
+            RedisValue json = await Db.StringGetAsync(CacheHelper.CreateKey<T>(key));
 
             if (json.HasValue)
             {
-                return JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.None});
+                return JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.None });
             }
             return default(T);
         }
 
-
+        /// <summary>
+        /// Pulls an object straight from cache
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public T GetObjectOnlyCache<T>(string key)
         {
-            RedisValue json = _db.StringGet(CacheHelper.CreateKey<T>(key));
+            RedisValue json = Db.StringGet(CacheHelper.CreateKey<T>(key));
 
             if (json.HasValue)
             {
@@ -216,10 +268,26 @@ namespace xDelivered.DocumentDb.Services
             return default(T);
         }
 
+        /// <summary>
+        /// Place an object into Redis cache only
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">Object to place into cache</param>
+        /// <param name="expiry">Optionally specify when object should expire</param>
         public void SetObjectOnlyCache<T>(T obj, TimeSpan? expiry = null)
         {
-            var key = Guid.NewGuid().ShortGuid();
+            SetObjectOnlyCache(Guid.NewGuid().ShortGuid(), obj, expiry);
+        }
 
+
+        /// <summary>
+        /// Place an object into Redis cache only
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">Object to place into cache</param>
+        /// <param name="expiry">Optionally specify when object should expire</param>
+        public void SetObjectOnlyCache<T>(string key, T obj, TimeSpan? expiry = null)
+        {
             if (obj is IDatabaseModelBase)
             {
                 var dbm = (obj as IDatabaseModelBase);
@@ -229,15 +297,14 @@ namespace xDelivered.DocumentDb.Services
                 }
             }
 
-            _db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(obj), expiry: expiry);
-            
+            Db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(obj), expiry: expiry);
+
             if (obj is IDatabaseModelBase)
             {
                 var dbModel = obj as IDatabaseModelBase;
                 dbModel.Id = key;
             }
         }
-
         public void Dispose()
         {
             _redis.Dispose();

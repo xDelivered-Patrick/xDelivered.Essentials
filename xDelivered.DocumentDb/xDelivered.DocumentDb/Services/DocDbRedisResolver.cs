@@ -7,12 +7,10 @@ namespace xDelivered.DocumentDb.Services
 {
     public class DocDbRedisResolver : IObjectResolver
     {
-        private readonly IDbContext _dbContext;
         private readonly IXDbProvider _cacheProvider;
 
-        public DocDbRedisResolver(IDbContext dbContext, IXDbProvider cacheProvider)
+        public DocDbRedisResolver(IXDbProvider cacheProvider)
         {
-            _dbContext = dbContext;
             _cacheProvider = cacheProvider;
         }
 
@@ -20,7 +18,7 @@ namespace xDelivered.DocumentDb.Services
         {
             return await _cacheProvider.GetOrCreateAsync<T>(
                 objectId: CacheHelper.CreateKey<T>(id),
-                create: () => _dbContext.GetDocumentAsync<T>(id),
+                create: () => _cacheProvider.GetObjectAsync<T>(id),
                 expiry: TimeSpan.FromDays(7));
         }
 
@@ -28,7 +26,7 @@ namespace xDelivered.DocumentDb.Services
         {
             return _cacheProvider.GetOrCreate<T>(
                 objectId: CacheHelper.CreateKey<T>(id),
-                create: () => _dbContext.GetDocument<T>(id),
+                create: () => _cacheProvider.GetObject<T>(id),
                 expiry: TimeSpan.FromDays(7));
         }
     }

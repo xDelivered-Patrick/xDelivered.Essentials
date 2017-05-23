@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("xDelivered.DocumentCosmosDb")]
+[assembly: AssemblyTitle("xDelivered.Sampleapp")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("xDelivered.DocumentCosmosDb")]
+[assembly: AssemblyProduct("xDelivered.Sampleapp")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f2964850-8ed2-4048-a80e-f907a4d2f3af")]
+[assembly: Guid("724ae762-3b04-4522-afb9-e7c7e1a7aed6")]
 
 // Version information for an assembly consists of the following four values:
 //

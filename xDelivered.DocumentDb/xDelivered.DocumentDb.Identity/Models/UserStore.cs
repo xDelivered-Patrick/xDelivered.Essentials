@@ -11,6 +11,7 @@ using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using xDelivered.DocumentDb.Helpers;
 using xDelivered.DocumentDb.Interfaces;
+using xDelivered.DocumentDb.Services;
 
 namespace xDelivered.DocumentDb.Identity.Models
 {
@@ -19,7 +20,7 @@ namespace xDelivered.DocumentDb.Identity.Models
         IUserTwoFactorStore<TUser, string>, IUserPhoneNumberStore<TUser>, IQueryableUserStore<TUser, String>
         where TUser : IdentityUser
     {
-        private readonly ICacheProvider _cacheProvider;
+        private readonly IXDbProvider _cacheProvider;
 
         private readonly string _database;
         private readonly string _collection;
@@ -30,7 +31,7 @@ namespace xDelivered.DocumentDb.Identity.Models
 
         private Dictionary<string, TUser> _userMemoryCache = new Dictionary<string, TUser>();
 
-        public UserStore(Uri endPoint, string authKey, string database, string collection, ICacheProvider cacheProvider, bool ensureDatabaseAndCollection = false) : this(GetOrCreateClient(endPoint, authKey), database, collection, ensureDatabaseAndCollection)
+        public UserStore(Uri endPoint, string authKey, string database, string collection, IXDbProvider cacheProvider, bool ensureDatabaseAndCollection = false) : this(GetOrCreateClient(endPoint, authKey), database, collection, ensureDatabaseAndCollection)
         {
             _cacheProvider = cacheProvider;
         }
@@ -233,7 +234,7 @@ namespace xDelivered.DocumentDb.Identity.Models
                 user.Id = Guid.NewGuid().ToString();
             }
             
-            await _cacheProvider.SetObject(CacheHelper.CreateKey(user, x=>x.Id), user);
+            _cacheProvider.SetObjectOnlyCache(user);
             await _client.CreateDocumentAsync(_documentCollection, user);
         }
 
@@ -754,15 +755,15 @@ namespace xDelivered.DocumentDb.Identity.Models
         private async Task UpdateUserAsync(TUser user)
         {
             await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_database, _collection), user);
-            await _cacheProvider.SetObject(CacheHelper.CreateKey<TUser>(user.Id), user);
+            _cacheProvider.SetObjectOnlyCache(CacheHelper.CreateKey<TUser>(user.Id), user);
 
             var redisKeyEmail = CacheHelper.CreateKey<TUser>(user.Email);
-            await _cacheProvider.SetObject(redisKeyEmail, user);
+            _cacheProvider.SetObjectOnlyCache(redisKeyEmail, user);
             var redisKeyEmail2 = CacheHelper.CreateKey<TUser>(user.Email);
-            await _cacheProvider.SetObject(redisKeyEmail2, user);
+            _cacheProvider.SetObjectOnlyCache(redisKeyEmail2, user);
             
             var fvt = user;
-            await _cacheProvider.UpdateUser(fvt as IDatabaseModelBase);
+            await _cacheProvider.UpsertDocumentAndCache(fvt as IDatabaseModelBase);
         }
 
         public void Dispose()
