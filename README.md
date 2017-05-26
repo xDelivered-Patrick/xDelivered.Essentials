@@ -2,7 +2,7 @@
 
 #### What is this?
 
-  >Data access service combining CosmodDb and Redis for optimised latency and NoSQL relationships
+  >Data access service combining CosmosDb and Redis for optimised latency and NoSQL relationships
 
 
 #### Why is this useful?
