@@ -2,9 +2,9 @@
 
 #### What is this?
 
-  Common classes to help with general .Net development
+  >Common classes to help with general .Net development
   
-  >Install-Package xDelivered.Common
+  ```Install-Package xDelivered.Common```
 
 # xDelivered MVC
 
@@ -12,11 +12,11 @@
 
   >Common classes to help with MVC development
   
-  >Install-Package xDelivered.Mvc
+  ```Install-Package xDelivered.Mvc```
 
 # xDelivered XDb Provider
   
-  >Install-Package xDelivered.Essentials.DocDb
+  ```Install-Package xDelivered.Essentials.DocDb```
 
 #### What is this?
 
