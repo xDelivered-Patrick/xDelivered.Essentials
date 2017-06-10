@@ -307,7 +307,7 @@ namespace xDelivered.DocumentDb.Services
         }
         public void Dispose()
         {
-            _redis.Dispose();
+
         }
     }
 }

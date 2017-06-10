@@ -72,6 +72,7 @@
     <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.0.nupkg" />
     <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.1.nupkg" />
     <None Include="Nuget\xDelivered.Essentials.DocDb.1.0.2.nupkg" />
+    <None Include="Nuget\xDelivered.Essentials.DocDb.1.1.nupkg" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
