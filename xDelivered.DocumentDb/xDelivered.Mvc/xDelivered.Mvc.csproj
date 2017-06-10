@@ -39,6 +39,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
@@ -81,13 +82,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthorizeIpAddressAttribute.cs" />
     <Compile Include="BasicAuthenticationAttribute.cs" />
     <Compile Include="BasicAuthenticationAttributeMvc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="nuget\xDelivered.Mvc.1.0.0.nupkg" />
+    <None Include="nuget\xDelivered.Mvc.1.0.1.nupkg" />
+    <None Include="nuget\xDelivered.Mvc.1.0.5.nupkg" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xDelivered.Common\xDelivered.Common.csproj">
+      <Project>{6a53c319-f465-4f79-b369-53435ab371af}</Project>
+      <Name>xDelivered.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

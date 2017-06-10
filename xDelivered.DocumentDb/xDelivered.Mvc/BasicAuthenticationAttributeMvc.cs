@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Web.Mvc;
 using ActionFilterAttribute = System.Web.Mvc.ActionFilterAttribute;
@@ -20,6 +21,7 @@ namespace xDelivered.Mvc
         public string BasicRealm { get; set; }
         protected string Username { get; set; }
         protected string Password { get; set; }
+        public ActionResult Returns { get; set; } = new HttpStatusCodeResult(401);
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -32,7 +34,7 @@ namespace xDelivered.Mvc
                 if (user.Name == Username && user.Pass == Password) return;
             }
             filterContext.HttpContext.Response.AddHeader("WWW-Authenticate", $"Basic realm=\"{BasicRealm ?? "REALM"}\"");
-            filterContext.Result = new HttpUnauthorizedResult();
+            filterContext.Result = Returns;
         }
     }
 }

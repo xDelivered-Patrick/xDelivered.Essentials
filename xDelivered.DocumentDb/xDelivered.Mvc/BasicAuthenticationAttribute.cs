@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
-using System.Web.Http.Filters;
+using IActionFilter = System.Web.Http.Filters.IActionFilter;
 
 namespace xDelivered.Mvc
 {
@@ -24,6 +24,7 @@ namespace xDelivered.Mvc
         public string BasicRealm { get; set; }
         protected string Username { get; set; }
         protected string Password { get; set; }
+        protected HttpStatusCode Returns { get; set; } = HttpStatusCode.Forbidden;
 
         public bool AllowMultiple => true;
 
@@ -40,7 +41,7 @@ namespace xDelivered.Mvc
                 if (user.Name == Username && user.Pass == Password) return continuation();
             }
 
-            actionContext.Response = new HttpResponseMessage(HttpStatusCode.Forbidden);
+            actionContext.Response = new HttpResponseMessage(Returns);
             actionContext.Response.Headers.Add("WWW-Authenticate", $"Basic realm=\"{BasicRealm ?? "REALM"}\"");
             return Task.FromResult(actionContext.Response);
         }
