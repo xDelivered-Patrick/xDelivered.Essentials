@@ -1,21 +1,23 @@
 # xDelivered Common
 
-#### What is this?
-
-  >Common classes to help with general .Net development
-  
   ```Install-Package xDelivered.Common```
 
+#### What is this?
+
+
+  Common classes to help with general .Net development
+  
 # xDelivered MVC
+
+  ```Install-Package xDelivered.Mvc```
 
 #### What is this?
 
-  >Common classes to help with MVC development
+  Common classes to help with MVC development
   
-  ```Install-Package xDelivered.Mvc```
 
 # xDelivered XDb Provider
-  
+
   ```Install-Package xDelivered.Essentials.DocDb```
 
 #### What is this?
