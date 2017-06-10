@@ -91,6 +91,7 @@
     <None Include="nuget\xDelivered.Mvc.1.0.0.nupkg" />
     <None Include="nuget\xDelivered.Mvc.1.0.1.nupkg" />
     <None Include="nuget\xDelivered.Mvc.1.0.5.nupkg" />
+    <None Include="nuget\xDelivered.Mvc.1.0.7.nupkg" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
+using xDelivered.Common;
 using IActionFilter = System.Web.Http.Filters.IActionFilter;
 
 namespace xDelivered.Mvc
@@ -31,6 +33,13 @@ namespace xDelivered.Mvc
         public Task<HttpResponseMessage> ExecuteActionFilterAsync(HttpActionContext actionContext,
             CancellationToken cancellationToken, Func<Task<HttpResponseMessage>> continuation)
         {
+            //handle defaults
+            if (Username.IsNullOrEmpty() && Password.IsNullOrEmpty())
+            {
+                Username = ConfigurationManager.AppSettings["BasicAuthUsername"];
+                Password = ConfigurationManager.AppSettings["BasicAuthPassword"];
+            }
+
             var req = actionContext.Request;
             var auth = req.Headers.SingleOrDefault(x => x.Key == "Authorization");
             if (auth.Value != null && auth.Value.Any() && !string.IsNullOrEmpty(auth.Value.First()))
