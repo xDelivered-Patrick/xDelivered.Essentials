@@ -29,7 +29,7 @@ namespace xDelivered.DocumentDb.Services
                 {
                     ConnectionMode = GetConnectionPolicy(),
                     ConnectionProtocol = Protocol.Tcp
-                });
+                }  );
 
 
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
