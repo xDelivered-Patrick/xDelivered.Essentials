@@ -29,14 +29,17 @@ namespace xDelivered.DocumentDb.Services
                 {
                     ConnectionMode = GetConnectionPolicy(),
                     ConnectionProtocol = Protocol.Tcp
-                }  );
+                });
 
 
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,  // is useful if objects are nested but not indefinitely
                                                                           //PreserveReferencesHandling = PreserveReferencesHandling.Objects, // serialize an object that is nested indefinitely
-                TypeNameHandling = TypeNameHandling.None
+                TypeNameHandling = TypeNameHandling.None,
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
             };
         }
 
@@ -185,7 +188,7 @@ namespace xDelivered.DocumentDb.Services
         {
             return _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_dbName, Collection, doc.Id));
         }
-        
+
 
         public List<T> Search<T>(Func<T, bool> query) where T : IDatabaseModelBase
         {
@@ -195,7 +198,7 @@ namespace xDelivered.DocumentDb.Services
                 .Where(query)
                 .ToList();
         }
-        
+
         public async Task PurgeAll()
         {
             var db = _client.CreateDatabaseQuery().ToList().First();
