@@ -10,8 +10,14 @@ namespace xDelivered.DocumentDb.Models
     /// </summary>
     public abstract class DatabaseModelBase : IDatabaseModelBase
     {
-        [JsonProperty("id")]
-        public virtual string Id { get; set; } = Guid.NewGuid().ShortGuid().Replace("-", string.Empty).ToLower();
+        public string id { get; set; } = Guid.NewGuid().ShortGuid().Replace("-", string.Empty).ToLower();
+
+        public virtual string Id
+        {
+            get => id;
+            set => id = value;
+        }
+
         public DateTime Created { get; set; } = DateTime.UtcNow;
         public DateTime? Updated { get; set; }
         public string Type => this.GetType().Name;

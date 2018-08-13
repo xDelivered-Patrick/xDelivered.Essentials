@@ -13,10 +13,7 @@ namespace xDelivered.DocumentDb.Identity.Models
 {
     public class ApplicationUser : IdentityUser, IDatabaseModelBase
     {
-        public DateTime Created { get; set; }
-        public DateTime? Updated { get; set; }
-        public bool IsDeleted { get; set; }
-        public string Type => nameof(ApplicationUser);
+        public new string Type => nameof(ApplicationUser);
 
         public virtual async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> userManager, string authType = DefaultAuthenticationTypes.ApplicationCookie)
         {

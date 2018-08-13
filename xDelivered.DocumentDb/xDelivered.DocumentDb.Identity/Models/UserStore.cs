@@ -29,8 +29,6 @@ namespace xDelivered.DocumentDb.Identity.Models
         private readonly DocumentClient _client;
         private static DocumentClient _cachedClient;
 
-        private Dictionary<string, TUser> _userMemoryCache = new Dictionary<string, TUser>();
-
         public UserStore(Uri endPoint, string authKey, string database, string collection, IXDbProvider cacheProvider, bool ensureDatabaseAndCollection = false) : this(GetOrCreateClient(endPoint, authKey), database, collection, ensureDatabaseAndCollection)
         {
             _cacheProvider = cacheProvider;
@@ -199,7 +197,7 @@ namespace xDelivered.DocumentDb.Identity.Models
             }
 
             return Task.FromResult(user.Logins.ToIList());
-        }
+        } 
 
         public Task RemoveLoginAsync(TUser user, UserLoginInfo login)
         {
@@ -263,21 +261,11 @@ namespace xDelivered.DocumentDb.Identity.Models
                 throw new ArgumentNullException("userId");
             }
 
-            if (_userMemoryCache.ContainsKey(userId) && _userMemoryCache[userId] != null)
-            {
-                return _userMemoryCache[userId];
-            }
-
             //todo : allow to turn and off memory cache
             var result =  await _cacheProvider.GetOrCreateAsync<TUser>(CacheHelper.CreateKey<TUser>(userId), async () =>
             {
                 return (await GetUsers(user => user.Id == userId)).FirstOrDefault();
             }) as TUser;
-
-            if (result != null)
-            {
-                _userMemoryCache[userId] = result;
-            }
             
             return result;
         }
@@ -291,20 +279,10 @@ namespace xDelivered.DocumentDb.Identity.Models
                 throw new ArgumentNullException("userName");
             }
 
-            if (_userMemoryCache.ContainsKey(userName) && _userMemoryCache[userName] != null)
-            {
-                return _userMemoryCache[userName];
-            }
-
             TUser result = await _cacheProvider.GetOrCreateAsync<TUser>(CacheHelper.CreateKey<TUser>(userName), async () =>
             {
                 return (await GetUsers(user => user.UserName == userName)).FirstOrDefault();
             });
-
-            if (result != null)
-            {
-                _userMemoryCache[userName] = result;
-            }
 
             return result;
         }
@@ -755,15 +733,9 @@ namespace xDelivered.DocumentDb.Identity.Models
         private async Task UpdateUserAsync(TUser user)
         {
             await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_database, _collection), user);
-            _cacheProvider.SetObjectOnlyCache(CacheHelper.CreateKey<TUser>(user.Id), user);
-
-            var redisKeyEmail = CacheHelper.CreateKey<TUser>(user.Email);
-            _cacheProvider.SetObjectOnlyCache(redisKeyEmail, user);
-            var redisKeyEmail2 = CacheHelper.CreateKey<TUser>(user.Email);
-            _cacheProvider.SetObjectOnlyCache(redisKeyEmail2, user);
-            
-            var fvt = user;
-            await _cacheProvider.UpsertDocumentAndCache(fvt as IDatabaseModelBase);
+            _cacheProvider.SetObjectOnlyCache(user.Email, user);
+            _cacheProvider.SetObjectOnlyCache(user.id, user);
+            await _cacheProvider.UpsertDocumentAndCache(user);
         }
 
         public void Dispose()

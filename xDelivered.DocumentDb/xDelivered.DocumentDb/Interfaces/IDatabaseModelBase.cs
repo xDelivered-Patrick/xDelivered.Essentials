@@ -5,7 +5,7 @@ namespace xDelivered.DocumentDb.Interfaces
 {
     public interface IDatabaseModelBase
     {
-        [JsonProperty("id")]
+        string id { get; set; }
         string Id { get; set; }
         DateTime Created { get; set; }
         DateTime? Updated { get; set; }

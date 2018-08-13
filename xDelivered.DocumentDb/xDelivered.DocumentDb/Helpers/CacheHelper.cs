@@ -53,5 +53,16 @@ namespace xDelivered.DocumentDb.Helpers
             builder.Append(id);
             return builder.ToString().ToLower();
         }
+
+        public static string RemoveKeyPrefixes(string key)
+        {
+            var last = key.LastIndexOf(":", StringComparison.Ordinal);
+            if (last != -1)
+            {
+                key = key.Remove(0,last + 1);
+            }
+
+            return key;
+        }
     }
 }

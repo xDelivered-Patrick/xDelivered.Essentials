@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Newtonsoft.Json;
+using xDelivered.Common;
 using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Services
@@ -52,9 +53,9 @@ namespace xDelivered.DocumentDb.Services
             return ConnectionMode.Direct;
         }
 
-        public IOrderedQueryable<T> NewQuery<T>() where T : IDatabaseModelBase
+        public IOrderedQueryable<T> NewQuery<T>(FeedOptions options = null) where T : IDatabaseModelBase
         {
-            return _client.CreateDocumentQuery<T>(CollectionUri);
+            return _client.CreateDocumentQuery<T>(CollectionUri, options);
         }
         public async Task Init()
         {
@@ -65,7 +66,9 @@ namespace xDelivered.DocumentDb.Services
 
         public async Task<string> UpsertDocument<T>(T obj) where T : IDatabaseModelBase
         {
-            Document doc = await this._client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_dbName, Collection), obj);
+            var documentCollectionUri = UriFactory.CreateDocumentCollectionUri(_dbName, Collection);
+            obj.id = obj.Id;
+            Document doc = await this._client.UpsertDocumentAsync(documentCollectionUri, obj);
             obj.Id = doc.Id;
             return doc.Id;
         }

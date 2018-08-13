@@ -76,8 +76,10 @@ namespace xDelivered.DocumentDb.Services
         {
             Ensure.CheckForNull(value);
 
+            value.id = CacheHelper.RemoveKeyPrefixes(value.Id);
+
             //store into doc db
-            string documentDbId = await DocumentCosmosDb.UpsertObject(value);
+            string documentDbId = await DocumentCosmosDb.UpsertDocument(value);
 
             //set Id of object, so redis will also have it
             value.Id = documentDbId;
@@ -298,13 +300,28 @@ namespace xDelivered.DocumentDb.Services
             }
 
             Db.StringSet(CacheHelper.CreateKey<T>(key), JsonConvert.SerializeObject(obj), expiry: expiry);
-
-            if (obj is IDatabaseModelBase)
+            
+            if (obj is IDatabaseModelBase dbModel)
             {
-                var dbModel = obj as IDatabaseModelBase;
-                dbModel.Id = key;
+                if (dbModel.Id.IsNullOrEmpty())
+                {
+                    dbModel.Id = key;
+                }
             }
         }
+
+
+        /// <summary>
+        /// Place an object into Redis cache only
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">Object to place into cache</param>
+        /// <param name="expiry">Optionally specify when object should expire</param>
+        public void SetObjectOnlyCache(string key, object obj, TimeSpan? expiry = null)
+        {
+            Db.StringSet(key, JsonConvert.SerializeObject(obj), expiry: expiry);
+        }
+
         public void Dispose()
         {
 

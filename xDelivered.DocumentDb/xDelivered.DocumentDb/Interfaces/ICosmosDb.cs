@@ -22,6 +22,6 @@ namespace xDelivered.DocumentDb.Interfaces
         Task DeleteDocument<T>(T doc) where T : IDatabaseModelBase;
         List<T> Search<T>(Func<T, bool> query) where T : IDatabaseModelBase;
         Task PurgeAll();
-        IOrderedQueryable<T> NewQuery<T>() where T : IDatabaseModelBase;
+        IOrderedQueryable<T> NewQuery<T>(FeedOptions options = null) where T : IDatabaseModelBase;
     }
 }

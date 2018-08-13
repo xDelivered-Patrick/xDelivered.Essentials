@@ -2,15 +2,28 @@
 using System.Collections.Generic;
 using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
+using xDelivered.Common;
+using xDelivered.DocumentDb.Interfaces;
 
 namespace xDelivered.DocumentDb.Identity.Models
 {
-    public class IdentityUser : IUser
+    public class IdentityUser : IUser, IDatabaseModelBase
     {
         private string _userName;
 
-        [JsonProperty(PropertyName = "id")]
-        public virtual string Id { get; set; }
+
+        public string id { get; set; } = Guid.NewGuid().ShortGuid().Replace("-", string.Empty).ToLower();
+
+        public virtual string Id
+        {
+            get => id;
+            set => id = value;
+        }
+
+        public DateTime Created { get; set; }
+        public DateTime? Updated { get; set; }
+        public string Type { get; }
+        public bool IsDeleted { get; set; }
 
         public string UserName
         {
