@@ -74,6 +74,20 @@ namespace xDelivered.DocumentDb.Services
         /// <returns>ID of document</returns>
         public async Task<string> UpsertDocumentAndCache<T>(T value) where T : IDatabaseModelBase
         {
+            //insert into cosmos
+            var documentDbId = await UpsertDocumentOnly(value);
+
+            //create key for redis
+            var redisKey = CacheHelper.CreateKey<T>(documentDbId);
+
+            //use key to store into redis
+            await Db.StringSetAsync(redisKey, JsonConvert.SerializeObject(value));
+
+            return documentDbId;
+        }
+
+        public async Task<string> UpsertDocumentOnly<T>(T value) where T : IDatabaseModelBase
+        {
             Ensure.CheckForNull(value);
 
             value.id = CacheHelper.RemoveKeyPrefixes(value.Id);
@@ -83,12 +97,6 @@ namespace xDelivered.DocumentDb.Services
 
             //set Id of object, so redis will also have it
             value.Id = documentDbId;
-
-            //create key for redis
-            var redisKey = CacheHelper.CreateKey<T>(documentDbId);
-
-            //use key to store into redis
-            await Db.StringSetAsync(redisKey, JsonConvert.SerializeObject(value));
 
             return documentDbId;
         }

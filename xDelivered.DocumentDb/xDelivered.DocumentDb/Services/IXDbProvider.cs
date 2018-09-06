@@ -19,6 +19,14 @@ namespace xDelivered.DocumentDb.Services
         /// </summary>
         /// <returns>ID of document</returns>
         Task<string> UpsertDocumentAndCache<T>(T value) where T : IDatabaseModelBase;
+        
+        /// <summary>
+        /// Will place an object into CosmosDb Only
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        Task<string> UpsertDocumentOnly<T>(T value) where T : IDatabaseModelBase;
 
         /// <summary>
         /// Will attempt to pull from Redis. If no match will call the Func (where to pull the value from) and will store in redis and return. 
